@@ -1,0 +1,69 @@
+
+Mesh LinkContours(const std::vector<glm::vec3>& outer, const std::vector<glm::vec3>& inner) {
+    Mesh MyMesh;
+
+    int idx_outer = MyMesh.addRawVertices(outer);
+    int idx_inner = MyMesh.addRawVertices(inner);
+
+    glm::vec3 sum = { 0,0,0 };
+    for (int i = 0;i < inner.size();i++) {
+        sum += inner[i];
+    }
+    glm::vec3 origin = sum / float(inner.size());
+    int outer_start_ID = -1;
+    float dist = 1e10;
+
+    for (int i = 0;i < outer.size();i++) {
+        float dist2 = glm::length(MyMesh.raw_vertices[idx_outer] - MyMesh.raw_vertices[idx_inner]);
+        if (dist2 < dist) {
+            dist = dist2;
+            outer_start_ID = idx_outer + i;
+        }
+    }
+    float indicator =
+        glm::dot(
+            glm::cross(
+                MyMesh.raw_vertices[outer_start_ID + 2] - MyMesh.raw_vertices[outer_start_ID + 1],
+                MyMesh.raw_vertices[outer_start_ID + 1] - MyMesh.raw_vertices[outer_start_ID + 0]),
+            glm::cross(
+                MyMesh.raw_vertices[idx_inner + 2] - MyMesh.raw_vertices[idx_inner + 1],
+                MyMesh.raw_vertices[idx_inner + 1] - MyMesh.raw_vertices[idx_inner + 0])
+        );
+    const int dir = (indicator > 0) ? 1 : -1;
+
+    cout << "Indicator :" << dir << endl;
+
+    vector<int> outer_links;
+    outer_links.push_back(outer_start_ID);
+    cout << "outer start ID :" << outer_start_ID << endl;
+
+    for (int i = 1;i < inner.size();i++) {
+        int next_outer = idx_outer + (outer.size() + dir * (outer_links.back() + 1)) % outer.size();
+        cout << "Next outer :" << next_outer << endl;
+        if (
+            glm::length(MyMesh.raw_vertices[idx_inner + i] - MyMesh.raw_vertices[outer_links.back()]) //the distance between Mesh
+            <
+            glm::length(MyMesh.raw_vertices[idx_inner + i] - MyMesh.raw_vertices[next_outer])
+            ) {
+            outer_links.push_back(outer_links.back());
+            cout << "A" << endl;
+        }
+        else {
+            outer_links.push_back(next_outer);
+            cout << "B" << endl;
+        }
+    }
+
+    for (int i = 0;i < outer_links.size() - 1;i++) {
+        if (outer_links[i] == outer_links[i + 1]) {
+            MyMesh.DefineTriangle({ idx_inner + i,idx_inner + i + 1,outer_links[i] });
+        }
+        else {
+            MyMesh.DefineTriangle({ idx_inner + i,idx_inner + i + 1,outer_links[i] });
+            int next_outer = ((outer_links[i] + 1) < MyMesh.raw_vertices.size()) ? (outer_links[i] + 1) : MyMesh.Vertices.back().ID;
+            MyMesh.DefineTriangle({ idx_inner + i + 1,outer_links[next_outer],outer_links[i] });
+        }
+    }
+    return MyMesh;
+
+}

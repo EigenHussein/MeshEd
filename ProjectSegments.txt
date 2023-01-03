@@ -1,0 +1,33 @@
+Name : Mesh Ed
+
+0x001 : First trial to make mesh editor for projection stuff
+
+0x002 : First make triangles , vertices automatically
+
+0x003 : an algorithm to find line line intersection with parametric curve
+
+0x004 : linker
+
+0x005 : failed trial to parse svg
+
+0x006 : intersection between parametric curve and a sphere
+
+0x007 : imgui test
+
+0x008 : static vector field (WinApps 0x005 shaders 0x007.cpp)
+
+0x009 : Dynamic wire
+
+0x00A : Vector Field class
+
+0x00B : Class construct and destruct
+
+0x00D : Animated transition between parametric curves
+
+0x00E : realtime graph
+
+0x00F : introduce sockets
+
+0x0014 : Latex return 
+
+        dvisvgm tmpwrt.dvi -n -v 0
